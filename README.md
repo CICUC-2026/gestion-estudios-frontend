@@ -11,6 +11,8 @@ npm run dev
 
 La aplicación queda disponible en `http://localhost:5173`.
 
+`VITE_API_URL` configura el prefijo de la API. Las rutas funcionales requieren una sesión válida y redirigen a `/ingresar`; el token opaco se conserva solamente en `sessionStorage` de la pestaña.
+
 ## Verificación
 
 ```bash

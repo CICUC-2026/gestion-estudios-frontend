@@ -90,6 +90,29 @@ h2 { margin: 0; font-weight: 500; }
 .panel-vacio > p:last-child { color: var(--tinta-suave); }
 .boton-primario { display: inline-block; margin-top: 10px; padding: 10px 16px; border-radius: 7px; color: #fff; background: var(--verde); text-decoration: none; font-weight: 700; }
 
+.pantalla-carga { min-height: 100vh; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--tinta-suave); }
+.indicador-carga { width: 20px; height: 20px; border: 2px solid var(--borde); border-top-color: var(--verde); border-radius: 50%; animation: girar .8s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.pagina-ingreso { min-height: 100vh; display: grid; grid-template-columns: minmax(360px, 42%) 1fr; background: var(--superficie); }
+.presentacion-ingreso { display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; padding: 44px clamp(36px, 6vw, 88px); color: #fff; background: linear-gradient(155deg, #083d3c 0%, #0d5955 60%, #17756d 100%); }
+.presentacion-ingreso h1 { max-width: 580px; color: #fff; font-size: clamp(38px, 5vw, 64px); line-height: 1.05; }
+.presentacion-ingreso p:not(.sobrelinea) { max-width: 530px; color: #d7eae7; font-size: 17px; line-height: 1.7; }
+.presentacion-ingreso > small { color: #c5dfdb; }
+.marca-ingreso { align-self: flex-start; }
+.sobrelinea-clara { color: #9cd7cc; }
+.contenedor-formulario-ingreso { display: grid; place-items: center; padding: 32px; background: #f7f9f9; }
+.formulario-ingreso { width: min(430px, 100%); display: grid; gap: 20px; padding: 38px; border: 1px solid var(--borde); border-radius: 14px; background: #fff; box-shadow: 0 18px 50px rgb(22 61 59 / 10%); }
+.formulario-ingreso h2 { margin-top: 0; font-size: 34px; }
+.formulario-ingreso > div:first-child > p:last-child { margin-bottom: 0; color: var(--tinta-suave); line-height: 1.5; }
+.formulario-ingreso label { display: grid; gap: 8px; color: #314b50; font-size: 13px; font-weight: 750; }
+.formulario-ingreso input { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #b9c9cb; border-radius: 7px; color: var(--tinta); background: #fff; }
+.formulario-ingreso input:focus { border-color: var(--verde); }
+.boton-ingreso { width: 100%; min-height: 46px; border: 0; cursor: pointer; }
+.boton-ingreso:disabled { cursor: wait; opacity: .72; }
+.mensaje-error { padding: 12px 14px; border-left: 4px solid #a43d25; color: #7c2d1b; background: #fff0eb; font-size: 13px; line-height: 1.5; }
+.ayuda-ingreso { margin: 0; color: var(--tinta-suave); font-size: 12px; text-align: center; }
+
 @media (max-width: 980px) {
   .barra-superior { grid-template-columns: auto 1fr; padding: 0 20px; }
   .barra-superior nav { grid-column: 1 / -1; order: 3; overflow-x: auto; }
@@ -104,6 +127,13 @@ h2 { margin: 0; font-weight: 500; }
   .contenido { padding: 32px 18px 56px; }
   .encabezado-pagina { flex-direction: column; }
   .rejilla-indicadores { grid-template-columns: 1fr; }
+  .pagina-ingreso { grid-template-columns: 1fr; background: #f7f9f9; }
+  .presentacion-ingreso { min-height: auto; padding: 28px 24px 38px; }
+  .presentacion-ingreso > div { margin-top: 52px; }
+  .presentacion-ingreso h1 { font-size: 38px; }
+  .presentacion-ingreso > small { margin-top: 28px; }
+  .contenedor-formulario-ingreso { padding: 24px 16px 44px; }
+  .formulario-ingreso { margin-top: -18px; padding: 28px 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

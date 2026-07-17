@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
+import { useSesion } from '../dominios/autenticacion/sesionContexto'
+
 const navegacion = [
   { etiqueta: 'Inicio', ruta: '/' },
   { etiqueta: 'Estudios', ruta: '/estudios' },
@@ -9,6 +11,8 @@ const navegacion = [
 ]
 
 export function LayoutPrincipal() {
+  const { usuario, salir } = useSesion()
+  const iniciales = `${usuario?.nombres.at(0) ?? ''}${usuario?.apellidos.at(0) ?? ''}`
   return (
     <div className="aplicacion">
       <header className="barra-superior">
@@ -39,9 +43,14 @@ export function LayoutPrincipal() {
         <div className="acciones-barra">
           <button className="boton-icono" type="button" aria-label="Buscar">⌕</button>
           <button className="boton-icono" type="button" aria-label="Notificaciones">○</button>
-          <button className="cuenta" type="button" aria-label="Abrir menú de usuario">
-            <span aria-hidden="true">DU</span>
-            <span className="cuenta-texto">Datos ficticios</span>
+          <button
+            className="cuenta"
+            type="button"
+            aria-label="Cerrar sesión"
+            onClick={() => void salir()}
+          >
+            <span aria-hidden="true">{iniciales}</span>
+            <span className="cuenta-texto">{usuario?.nombres} · Salir</span>
           </button>
         </div>
       </header>
