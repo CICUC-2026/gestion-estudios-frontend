@@ -2,9 +2,24 @@
 
 Aplicación web de CICUC para gestión operativa y administrativa de estudios clínicos oncológicos.
 
-## Estado
+## Inicio local
 
-Tanda 0: repositorio creado; implementación técnica pendiente de HU-002.
+```bash
+npm install
+npm run dev
+```
+
+La aplicación queda disponible en `http://localhost:5173`.
+
+## Verificación
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run test:e2e
+```
 
 ## Stack decidido
 
