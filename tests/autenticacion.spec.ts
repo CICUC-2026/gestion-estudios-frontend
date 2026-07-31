@@ -9,8 +9,12 @@ test.beforeEach(async ({ page }) => {
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   let autenticado = false
 
-  await page.route(/.*\/api\/v1\/.*/, async (ruta) => {
+  await page.route('**/*', async (ruta) => {
     const url = ruta.request().url()
+    if (!url.includes('/api/v1/')) {
+      await ruta.continue()
+      return
+    }
     if (url.includes('/autenticacion/ingresar')) {
       autenticado = true
       await ruta.fulfill({
