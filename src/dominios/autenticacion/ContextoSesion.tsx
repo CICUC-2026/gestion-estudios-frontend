@@ -31,6 +31,8 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
       void cargarUsuario(token)
         .catch(() => limpiar())
         .finally(() => setCargando(false))
+    } else {
+      setCargando(false)
     }
   }, [cargarUsuario, limpiar])
 
