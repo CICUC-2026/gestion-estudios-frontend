@@ -7,26 +7,30 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
+  await page.route('**/api/v1/autenticacion/yo', async (ruta) => {
+    await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
+  })
+
   await page.route('**/api/v1/autenticacion/ingresar', async (ruta) => {
+    await page.route('**/api/v1/autenticacion/yo', async (r) => {
+      await r.fulfill({
+        json: {
+          id: '00000000-0000-0000-0000-000000000001',
+          nombres: 'Ada',
+          apellidos: 'Administradora',
+          correo: 'admin@example.com',
+          es_administrador_sistema: true,
+          activo: true,
+          ultimo_acceso: null,
+          creado_en: '2026-07-17T12:00:00Z',
+        },
+      })
+    })
     await ruta.fulfill({
       json: {
         token_acceso: 'token-ficticio',
         tipo: 'bearer',
         expira_en: '2026-07-17T20:00:00Z',
-      },
-    })
-  })
-  await page.route('**/api/v1/autenticacion/yo', async (ruta) => {
-    await ruta.fulfill({
-      json: {
-        id: '00000000-0000-0000-0000-000000000001',
-        nombres: 'Ada',
-        apellidos: 'Administradora',
-        correo: 'admin@example.com',
-        es_administrador_sistema: true,
-        activo: true,
-        ultimo_acceso: null,
-        creado_en: '2026-07-17T12:00:00Z',
       },
     })
   })
