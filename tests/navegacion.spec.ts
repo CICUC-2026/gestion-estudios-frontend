@@ -12,6 +12,9 @@ const usuario = {
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.route('**/api/v1/estudios**', async (ruta) => {
+    await ruta.fulfill({ json: [] })
+  })
   await page.route('**/api/v1/autenticacion/yo', async (ruta) => {
     await ruta.fulfill({ json: usuario })
   })
@@ -27,7 +30,7 @@ test('navega mediante la barra superior y conserva idioma español', async ({ pa
   await expect(navegacion).toBeVisible()
   await page.getByRole('link', { name: 'Estudios' }).click()
   await expect(page).toHaveURL(/\/estudios$/)
-  await expect(page.getByRole('heading', { name: 'Estudios' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Estudios Clínicos' })).toBeVisible()
 })
 
 test('la barra superior se mantiene disponible en viewport móvil', async ({ page }) => {
