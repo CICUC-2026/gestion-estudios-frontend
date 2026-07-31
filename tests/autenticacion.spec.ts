@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.sessionStorage.clear()
+  })
+})
+
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   await page.route('**/api/v1/autenticacion/ingresar', async (ruta) => {
     await ruta.fulfill({
