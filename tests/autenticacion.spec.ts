@@ -40,7 +40,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   })
 
   await page.goto('/pacientes')
-  await page.waitForURL(/\/ingresar/)
+  await page.waitForURL(/\/ingresar/, { waitUntil: 'commit' })
   await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible()
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
