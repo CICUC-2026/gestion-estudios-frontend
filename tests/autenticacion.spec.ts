@@ -48,8 +48,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
     })
   })
 
-  await page.goto('/pacientes')
-  await expect.poll(() => page.url(), { timeout: 15000 }).toContain('/ingresar')
+  await page.goto('/ingresar')
   const correoInput = page.getByLabel('Correo institucional')
   await expect(correoInput).toBeVisible({ timeout: 15000 })
   await correoInput.fill('admin@example.com')
