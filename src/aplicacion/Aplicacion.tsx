@@ -20,7 +20,7 @@ export function Aplicacion() {
     <QueryClientProvider client={clienteConsultas}>
       <ProveedorTema>
         <ProveedorSesion>
-          <BrowserRouter>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
             <RutasAplicacion />
           </BrowserRouter>
         </ProveedorSesion>
