@@ -42,7 +42,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
     })
   })
 
-  await page.goto('/ingresar')
+  await page.goto('./ingresar')
   await expect(page.locator('#correo-ingreso')).toBeVisible({ timeout: 15000 })
   await page.locator('#correo-ingreso').fill('admin@example.com')
   await page.locator('#contrasena-ingreso').fill('Contrasena-Demo-2026')
