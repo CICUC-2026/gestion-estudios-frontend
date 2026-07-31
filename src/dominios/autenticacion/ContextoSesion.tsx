@@ -27,6 +27,7 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = sessionStorage.getItem(CLAVE_TOKEN)
     if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       void cargarUsuario(token)
         .catch(() => limpiar())
         .finally(() => setCargando(false))
