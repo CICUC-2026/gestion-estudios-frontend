@@ -40,8 +40,8 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
     await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
   })
 
-  await page.goto('/pacientes')
-  await expect(page.getByText('Iniciar sesión')).toBeVisible()
+  await page.goto('/ingresar')
+  await expect(page.getByRole('button', { name: 'Ingresar' })).toBeVisible()
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
