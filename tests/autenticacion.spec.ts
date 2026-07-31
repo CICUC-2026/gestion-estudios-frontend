@@ -51,6 +51,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   })
 
   await page.goto('/ingresar')
+  await page.evaluate(() => window.sessionStorage.clear())
   await expect(page.getByLabel('Correo institucional')).toBeVisible()
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
