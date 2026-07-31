@@ -12,10 +12,20 @@ import type { TokenSesion, UsuarioSesion } from './tipos'
 
 export function ProveedorSesion({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioSesion | null>(null)
-  const [cargando, setCargando] = useState(() => Boolean(sessionStorage.getItem(CLAVE_TOKEN)))
+  const [cargando, setCargando] = useState(() => {
+    try {
+      return Boolean(typeof window !== 'undefined' && window.sessionStorage.getItem(CLAVE_TOKEN))
+    } catch {
+      return false
+    }
+  })
 
   const limpiar = useCallback(() => {
-    sessionStorage.removeItem(CLAVE_TOKEN)
+    try {
+      sessionStorage.removeItem(CLAVE_TOKEN)
+    } catch {
+      // Ignorar restricciones de almacenamiento
+    }
     setUsuario(null)
   }, [])
 
@@ -25,11 +35,19 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    const token = sessionStorage.getItem(CLAVE_TOKEN)
+    let token: string | null = null
+    try {
+      token = sessionStorage.getItem(CLAVE_TOKEN)
+    } catch {
+      token = null
+    }
     if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       void cargarUsuario(token)
         .catch(() => limpiar())
         .finally(() => setCargando(false))
+    } else {
+      setCargando(false)
     }
   }, [cargarUsuario, limpiar])
 
