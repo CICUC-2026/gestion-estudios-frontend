@@ -9,11 +9,12 @@ test.beforeEach(async ({ page }) => {
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   let autenticado = false
 
-  await page.route(/\/api\/v1\//, async (ruta) => {
+  await page.route(/.*\/api\/v1\/.*/, async (ruta) => {
     const url = ruta.request().url()
     if (url.includes('/autenticacion/ingresar')) {
       autenticado = true
       await ruta.fulfill({
+        contentType: 'application/json',
         json: {
           token_acceso: 'token-ficticio',
           tipo: 'bearer',
@@ -24,6 +25,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
     }
     if (autenticado && url.includes('/autenticacion/yo')) {
       await ruta.fulfill({
+        contentType: 'application/json',
         json: {
           id: '00000000-0000-0000-0000-000000000001',
           nombres: 'Ada',
@@ -37,11 +39,15 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
       })
       return
     }
-    await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
+    await ruta.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      json: { mensaje: 'No autenticado' },
+    })
   })
 
   await page.goto('/ingresar')
-  await expect(page.getByRole('button', { name: 'Ingresar' })).toBeVisible()
+  await expect(page.getByLabel('Correo institucional')).toBeVisible()
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
