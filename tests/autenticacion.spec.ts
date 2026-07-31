@@ -42,6 +42,8 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
     })
   })
 
+  await page.goto('about:blank')
+  await page.evaluate(() => window.sessionStorage.clear())
   await page.goto('/ingresar')
   await expect(page.locator('#correo-ingreso')).toBeVisible({ timeout: 15000 })
   await page.locator('#correo-ingreso').fill('admin@example.com')

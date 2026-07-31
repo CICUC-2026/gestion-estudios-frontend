@@ -12,7 +12,7 @@ import type { TokenSesion, UsuarioSesion } from './tipos'
 
 export function ProveedorSesion({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioSesion | null>(null)
-  const [cargando, setCargando] = useState(false)
+  const [cargando, setCargando] = useState(() => Boolean(sessionStorage.getItem(CLAVE_TOKEN)))
 
   const limpiar = useCallback(() => {
     sessionStorage.removeItem(CLAVE_TOKEN)
@@ -27,8 +27,6 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = sessionStorage.getItem(CLAVE_TOKEN)
     if (token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCargando(true)
       void cargarUsuario(token)
         .catch(() => limpiar())
         .finally(() => setCargando(false))
