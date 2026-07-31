@@ -35,5 +35,25 @@ jobs:
         run: |
           aws s3 sync dist/ s3://cicuc-frontend-app --delete
 
-      - name: Notificar despliegue S3
-        run: echo "Frontend estático sincronizado correctamente en S3 cicuc-frontend-app."
+      - name: Actualizar frontend en servidor EC2
+        env:
+          EC2_INSTANCE_ID: i-08ab46a4c0b14152d
+          EC2_HOST: 3.224.111.136
+        run: |
+          # Generar clave SSH temporal
+          ssh-keygen -t ed25519 -f /tmp/deploy_key -N "" -q
+          # Inyectar clave publica via EC2 Instance Connect (valida 60s)
+          aws ec2-instance-connect send-ssh-public-key \
+            --instance-id "$EC2_INSTANCE_ID" \
+            --instance-os-user ec2-user \
+            --ssh-public-key file:///tmp/deploy_key.pub
+          sleep 2
+          # Copiar build al servidor y reemplazar contenido del volumen Docker
+          scp -o StrictHostKeyChecking=no -i /tmp/deploy_key -r dist/* ec2-user@"$EC2_HOST":/tmp/cicuc-deploy/
+          ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key ec2-user@"$EC2_HOST" \
+            "sudo rm -rf /var/lib/docker/volumes/backend_web_dist/_data/* && \
+             sudo cp -r /tmp/cicuc-deploy/* /var/lib/docker/volumes/backend_web_dist/_data/ && \
+             rm -rf /tmp/cicuc-deploy"
+
+      - name: Notificar despliegue
+        run: echo "Frontend sincronizado en S3 y desplegado en EC2."
