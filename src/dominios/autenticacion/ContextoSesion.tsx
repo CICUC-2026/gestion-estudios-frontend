@@ -12,7 +12,7 @@ import type { TokenSesion, UsuarioSesion } from './tipos'
 
 export function ProveedorSesion({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioSesion | null>(null)
-  const [cargando, setCargando] = useState(() => Boolean(sessionStorage.getItem(CLAVE_TOKEN)))
+  const [cargando, setCargando] = useState(false)
 
   const limpiar = useCallback(() => {
     sessionStorage.removeItem(CLAVE_TOKEN)
@@ -26,14 +26,11 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const token = sessionStorage.getItem(CLAVE_TOKEN)
-    if (!token) {
-      return
+    if (token) {
+      void cargarUsuario(token)
+        .catch(() => limpiar())
+        .finally(() => setCargando(false))
     }
-    // Sincroniza el estado React con una sesión externa persistida en la pestaña.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void cargarUsuario(token)
-      .catch(() => limpiar())
-      .finally(() => setCargando(false))
   }, [cargarUsuario, limpiar])
 
   const ingresar = useCallback(
