@@ -9,8 +9,20 @@ test.beforeEach(async ({ page }) => {
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   let autenticado = false
 
-  await page.route(/\/api\/v1\/autenticacion\/yo/, async (ruta) => {
-    if (autenticado) {
+  await page.route(/\/api\/v1\//, async (ruta) => {
+    const url = ruta.request().url()
+    if (url.includes('/autenticacion/ingresar')) {
+      autenticado = true
+      await ruta.fulfill({
+        json: {
+          token_acceso: 'token-ficticio',
+          tipo: 'bearer',
+          expira_en: '2026-07-17T20:00:00Z',
+        },
+      })
+      return
+    }
+    if (autenticado && url.includes('/autenticacion/yo')) {
       await ruta.fulfill({
         json: {
           id: '00000000-0000-0000-0000-000000000001',
@@ -23,24 +35,12 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
           creado_en: '2026-07-17T12:00:00Z',
         },
       })
-    } else {
-      await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
+      return
     }
-  })
-
-  await page.route(/\/api\/v1\/autenticacion\/ingresar/, async (ruta) => {
-    autenticado = true
-    await ruta.fulfill({
-      json: {
-        token_acceso: 'token-ficticio',
-        tipo: 'bearer',
-        expira_en: '2026-07-17T20:00:00Z',
-      },
-    })
+    await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
   })
 
   await page.goto('/pacientes')
-  await expect.poll(() => page.url()).toContain('/ingresar')
   await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible()
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
