@@ -32,26 +32,31 @@ export function PaginaEstudios() {
     observaciones: '',
   })
 
-  async function cargar() {
-    setCargando(true)
-    setError(null)
-    try {
-      const datos = await obtenerEstudios({
-        patologia: patologia || undefined,
-        estado_operacional: estadoOperacional || undefined,
-        disponibilidad: disponibilidad || undefined,
-        vigencia: vigencia || undefined,
-      })
-      setEstudios(datos)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar estudios.')
-    } finally {
-      setCargando(false)
-    }
-  }
-
   useEffect(() => {
-    void cargar()
+    let activo = true
+
+    obtenerEstudios({
+      patologia: patologia || undefined,
+      estado_operacional: estadoOperacional || undefined,
+      disponibilidad: disponibilidad || undefined,
+      vigencia: vigencia || undefined,
+    })
+      .then((datos) => {
+        if (activo) {
+          setEstudios(datos)
+          setCargando(false)
+        }
+      })
+      .catch((err: unknown) => {
+        if (activo) {
+          setError(err instanceof Error ? err.message : 'Error al cargar estudios.')
+          setCargando(false)
+        }
+      })
+
+    return () => {
+      activo = false
+    }
   }, [patologia, estadoOperacional, disponibilidad, vigencia])
 
   async function handleCrearEstudio(e: React.FormEvent) {
@@ -74,7 +79,13 @@ export function PaginaEstudios() {
         fuente_informacion: 'Registro Manual Portal',
         observaciones: '',
       })
-      await cargar()
+      const datos = await obtenerEstudios({
+        patologia: patologia || undefined,
+        estado_operacional: estadoOperacional || undefined,
+        disponibilidad: disponibilidad || undefined,
+        vigencia: vigencia || undefined,
+      })
+      setEstudios(datos)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al crear estudio')
     } finally {
@@ -262,7 +273,28 @@ export function PaginaEstudios() {
         {error && (
           <div style={{ padding: '1rem', color: '#c53030' }}>
             <p>Error: {error}</p>
-            <button type="button" onClick={() => void cargar()} style={{ marginTop: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setCargando(true)
+                setError(null)
+                obtenerEstudios({
+                  patologia: patologia || undefined,
+                  estado_operacional: estadoOperacional || undefined,
+                  disponibilidad: disponibilidad || undefined,
+                  vigencia: vigencia || undefined,
+                })
+                  .then((datos) => {
+                    setEstudios(datos)
+                    setCargando(false)
+                  })
+                  .catch((err: unknown) => {
+                    setError(err instanceof Error ? err.message : 'Error al cargar estudios.')
+                    setCargando(false)
+                  })
+              }}
+              style={{ marginTop: '0.5rem' }}
+            >
               Reintentar
             </button>
           </div>

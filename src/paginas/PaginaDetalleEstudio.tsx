@@ -20,22 +20,27 @@ export function PaginaDetalleEstudio() {
   const [fuenteDisp, setFuenteDisp] = useState('')
   const [motivoDisp, setMotivoDisp] = useState('')
 
-  async function cargar() {
-    if (!id) return
-    setCargando(true)
-    setError(null)
-    try {
-      const datos = await obtenerEstudio(id)
-      setEstudio(datos)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo cargar el estudio.')
-    } finally {
-      setCargando(false)
-    }
-  }
-
   useEffect(() => {
-    void cargar()
+    if (!id) return
+    let activo = true
+
+    obtenerEstudio(id)
+      .then((datos) => {
+        if (activo) {
+          setEstudio(datos)
+          setCargando(false)
+        }
+      })
+      .catch((err: unknown) => {
+        if (activo) {
+          setError(err instanceof Error ? err.message : 'No se pudo cargar el estudio.')
+          setCargando(false)
+        }
+      })
+
+    return () => {
+      activo = false
+    }
   }, [id])
 
   async function handleCambiarEstadoOp(e: React.FormEvent) {
@@ -50,7 +55,8 @@ export function PaginaDetalleEstudio() {
       setNuevoEstadoOp('')
       setFuenteOp('')
       setMotivoOp('')
-      await cargar()
+      const datos = await obtenerEstudio(id)
+      setEstudio(datos)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al actualizar estado operacional')
     }
@@ -68,7 +74,8 @@ export function PaginaDetalleEstudio() {
       setNuevaDisp('')
       setFuenteDisp('')
       setMotivoDisp('')
-      await cargar()
+      const datos = await obtenerEstudio(id)
+      setEstudio(datos)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al actualizar disponibilidad')
     }
@@ -80,7 +87,8 @@ export function PaginaDetalleEstudio() {
     if (!fuente) return
     try {
       await reconfirmarVigencia(id, { fuente_informacion: fuente })
-      await cargar()
+      const datos = await obtenerEstudio(id)
+      setEstudio(datos)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al reconfirmar vigencia')
     }
