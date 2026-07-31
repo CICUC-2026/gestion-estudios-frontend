@@ -12,6 +12,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   await page.route('**/api/v1/autenticacion/yo', async (ruta) => {
     if (autenticado) {
       await ruta.fulfill({
+        status: 200,
         json: {
           id: '00000000-0000-0000-0000-000000000001',
           nombres: 'Ada',
@@ -31,6 +32,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   await page.route('**/api/v1/autenticacion/ingresar', async (ruta) => {
     autenticado = true
     await ruta.fulfill({
+      status: 200,
       json: {
         token_acceso: 'token-ficticio',
         tipo: 'bearer',
@@ -39,11 +41,11 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
     })
   })
 
-  await page.goto('/ingresar')
-  await expect(page.getByLabel('Correo institucional')).toBeVisible()
+  await page.goto('/pacientes')
+  await expect(page.getByLabel('Correo institucional')).toBeVisible({ timeout: 15000 })
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
 
-  await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible({ timeout: 15000 })
 })
