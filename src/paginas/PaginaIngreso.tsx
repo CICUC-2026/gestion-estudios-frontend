@@ -69,22 +69,24 @@ export function PaginaIngreso() {
 
           {error ? <div className="mensaje-error" role="alert">{error}</div> : null}
 
-          <label>
+          <label htmlFor="correo-ingreso">
             Correo institucional
             <input
               autoComplete="username"
               disabled={enviando}
+              id="correo-ingreso"
               onChange={(evento) => setCorreo(evento.target.value)}
               required
               type="email"
               value={correo}
             />
           </label>
-          <label>
+          <label htmlFor="contrasena-ingreso">
             Contraseña
             <input
               autoComplete="current-password"
               disabled={enviando}
+              id="contrasena-ingreso"
               onChange={(evento) => setContrasena(evento.target.value)}
               required
               type="password"
