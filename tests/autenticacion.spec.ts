@@ -1,11 +1,5 @@
 import { expect, test } from '@playwright/test'
 
-test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    window.sessionStorage.clear()
-  })
-})
-
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   let autenticado = false
 
@@ -49,9 +43,8 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   })
 
   await page.goto('/ingresar')
-  const correoInput = page.locator('#correo-ingreso')
-  await expect(correoInput).toBeVisible({ timeout: 15000 })
-  await correoInput.fill('admin@example.com')
+  await expect(page.locator('#correo-ingreso')).toBeVisible({ timeout: 15000 })
+  await page.locator('#correo-ingreso').fill('admin@example.com')
   await page.locator('#contrasena-ingreso').fill('Contrasena-Demo-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
 
