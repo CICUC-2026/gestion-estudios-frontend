@@ -4,6 +4,8 @@ import { LayoutPrincipal } from '../aplicacion/LayoutPrincipal'
 import { PaginaInicio } from '../paginas/PaginaInicio'
 import { PaginaIngreso } from '../paginas/PaginaIngreso'
 import { PaginaModulo } from '../paginas/PaginaModulo'
+import { PaginaEstudios } from '../paginas/PaginaEstudios'
+import { PaginaDetalleEstudio } from '../paginas/PaginaDetalleEstudio'
 import { PaginaNoEncontrada } from '../paginas/PaginaNoEncontrada'
 import { RutaProtegida } from './RutaProtegida'
 
@@ -14,7 +16,8 @@ export function RutasAplicacion() {
       <Route element={<RutaProtegida />}>
         <Route element={<LayoutPrincipal />}>
           <Route index element={<PaginaInicio />} />
-          <Route path="estudios" element={<PaginaModulo modulo="estudios" />} />
+          <Route path="estudios" element={<PaginaEstudios />} />
+          <Route path="estudios/:id" element={<PaginaDetalleEstudio />} />
           <Route path="pacientes" element={<PaginaModulo modulo="pacientes" />} />
           <Route path="operacion" element={<PaginaModulo modulo="operacion" />} />
           <Route path="reportes" element={<PaginaModulo modulo="reportes" />} />

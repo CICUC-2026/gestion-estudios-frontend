@@ -6,9 +6,23 @@ import type {
   VersionProtocolo,
 } from './tipos'
 
-export async function obtenerEstudios(): Promise<Estudio[]> {
+export async function obtenerEstudios(filtros?: {
+  patologia?: string
+  estado?: string
+  estado_operacional?: string
+  disponibilidad?: string
+  vigencia?: string
+}): Promise<Estudio[]> {
   const token = sessionStorage.getItem(CLAVE_TOKEN)
-  return solicitarApi<Estudio[]>('/estudios', {}, token)
+  const params = new URLSearchParams()
+  if (filtros?.patologia) params.append('patologia', filtros.patologia)
+  if (filtros?.estado) params.append('estado', filtros.estado)
+  if (filtros?.estado_operacional) params.append('estado_operacional', filtros.estado_operacional)
+  if (filtros?.disponibilidad) params.append('disponibilidad', filtros.disponibilidad)
+  if (filtros?.vigencia) params.append('vigencia', filtros.vigencia)
+
+  const query = params.toString() ? `?${params.toString()}` : ''
+  return solicitarApi<Estudio[]>(`/estudios${query}`, {}, token)
 }
 
 export async function obtenerEstudio(id: string): Promise<Estudio> {
@@ -25,11 +39,59 @@ export async function crearEstudio(datos: {
   escenario_clinico: string
   linea_tratamiento: string
   centro_atencion?: string
+  estado_operacional?: string
+  disponibilidad?: string
+  fuente_informacion?: string
   observaciones?: string
 }): Promise<Estudio> {
   const token = sessionStorage.getItem(CLAVE_TOKEN)
   return solicitarApi<Estudio>(
     '/estudios',
+    {
+      method: 'POST',
+      body: JSON.stringify(datos),
+    },
+    token,
+  )
+}
+
+export async function cambiarEstadoOperacional(
+  estudioId: string,
+  datos: { estado_operacional: string; fuente: string; motivo: string },
+): Promise<Estudio> {
+  const token = sessionStorage.getItem(CLAVE_TOKEN)
+  return solicitarApi<Estudio>(
+    `/estudios/${estudioId}/estado-operacional`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(datos),
+    },
+    token,
+  )
+}
+
+export async function cambiarDisponibilidad(
+  estudioId: string,
+  datos: { disponibilidad: string; fuente: string; motivo: string },
+): Promise<Estudio> {
+  const token = sessionStorage.getItem(CLAVE_TOKEN)
+  return solicitarApi<Estudio>(
+    `/estudios/${estudioId}/disponibilidad`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(datos),
+    },
+    token,
+  )
+}
+
+export async function reconfirmarVigencia(
+  estudioId: string,
+  datos: { fuente_informacion: string; dias_validez?: number },
+): Promise<Estudio> {
+  const token = sessionStorage.getItem(CLAVE_TOKEN)
+  return solicitarApi<Estudio>(
+    `/estudios/${estudioId}/reconfirmar-vigencia`,
     {
       method: 'POST',
       body: JSON.stringify(datos),
