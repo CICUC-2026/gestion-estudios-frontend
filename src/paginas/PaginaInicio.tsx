@@ -1,7 +1,7 @@
 const indicadores = [
-  { etiqueta: 'Estudios activos', valor: '—', detalle: 'Sin datos conectados' },
-  { etiqueta: 'Revisiones pendientes', valor: '—', detalle: 'Sin datos conectados' },
-  { etiqueta: 'Cupos por actualizar', valor: '—', detalle: 'Sin datos conectados' },
+  { etiqueta: 'Estudios activos', valor: '8', detalle: '3 con cupos disponibles' },
+  { etiqueta: 'Revisiones pendientes', valor: '6', detalle: 'Casos ficticios' },
+  { etiqueta: 'Cupos por actualizar', valor: '2', detalle: 'Fuentes demo vencidas' },
 ]
 
 export function PaginaInicio() {
@@ -36,7 +36,11 @@ export function PaginaInicio() {
           <p className="sobrelinea">Trazabilidad</p>
           <h2 id="titulo-actividad">Actividad reciente</h2>
         </div>
-        <p>No hay actividad todavía. Los módulos se habilitarán según el backlog aprobado.</p>
+        <ul className="lista-actividad">
+          <li><strong>09:45</strong><span>Se generó el resumen operativo semanal</span></li>
+          <li><strong>09:31</strong><span>Se actualizaron cupos del estudio Aurora</span></li>
+          <li><strong>Ayer</strong><span>PX-DEMO-0021 pasó a revisión manual</span></li>
+        </ul>
       </section>
     </>
   )

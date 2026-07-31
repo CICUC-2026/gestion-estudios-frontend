@@ -5,19 +5,23 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, vi } from 'vitest'
 
 import { RutasAplicacion } from '../../rutas/RutasAplicacion'
+import { ProveedorTema } from '../../aplicacion/ContextoTema'
 import { ProveedorSesion } from './ContextoSesion'
 
 function renderizar(ruta = '/') {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <ProveedorSesion>
-        <MemoryRouter initialEntries={[ruta]}>
-          <RutasAplicacion />
-        </MemoryRouter>
-      </ProveedorSesion>
+      <ProveedorTema>
+        <ProveedorSesion>
+          <MemoryRouter initialEntries={[ruta]}>
+            <RutasAplicacion />
+          </MemoryRouter>
+        </ProveedorSesion>
+      </ProveedorTema>
     </QueryClientProvider>,
   )
 }
+
 
 afterEach(() => {
   sessionStorage.clear()

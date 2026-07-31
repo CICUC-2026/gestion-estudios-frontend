@@ -14,10 +14,10 @@ export function RutasAplicacion() {
       <Route element={<RutaProtegida />}>
         <Route element={<LayoutPrincipal />}>
           <Route index element={<PaginaInicio />} />
-          <Route path="estudios" element={<PaginaModulo titulo="Estudios" />} />
-          <Route path="pacientes" element={<PaginaModulo titulo="Pacientes" />} />
-          <Route path="operacion" element={<PaginaModulo titulo="Operación" />} />
-          <Route path="reportes" element={<PaginaModulo titulo="Reportes" />} />
+          <Route path="estudios" element={<PaginaModulo modulo="estudios" />} />
+          <Route path="pacientes" element={<PaginaModulo modulo="pacientes" />} />
+          <Route path="operacion" element={<PaginaModulo modulo="operacion" />} />
+          <Route path="reportes" element={<PaginaModulo modulo="reportes" />} />
           <Route path="inicio" element={<Navigate replace to="/" />} />
           <Route path="*" element={<PaginaNoEncontrada />} />
         </Route>

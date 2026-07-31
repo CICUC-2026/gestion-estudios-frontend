@@ -1,3 +1,11 @@
+export type RolUsuario =
+  | 'administrador'
+  | 'investigador_principal'
+  | 'medico_investigador'
+  | 'enfermeria'
+  | 'coordinador'
+  | 'auditor'
+
 export type UsuarioSesion = {
   id: string
   nombres: string
@@ -5,6 +13,7 @@ export type UsuarioSesion = {
   correo: string
   es_administrador_sistema: boolean
   activo: boolean
+  roles: RolUsuario[]
   ultimo_acceso: string | null
   creado_en: string
 }

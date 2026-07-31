@@ -36,3 +36,19 @@ test('la barra superior se mantiene disponible en viewport móvil', async ({ pag
   await expect(page.getByRole('link', { name: 'CICUC, ir al inicio' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Operación' })).toBeVisible()
 })
+
+test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)', async ({ page }) => {
+  await page.goto('/')
+
+  const selectorTema = page.getByRole('combobox', { name: 'Seleccionar tema visual' })
+  await expect(selectorTema).toBeVisible()
+
+  // Seleccionar daltonismo
+  await selectorTema.selectOption('daltonismo')
+  await expect(page.locator('html')).toHaveAttribute('data-tema', 'daltonismo')
+
+  // Seleccionar alto contraste
+  await selectorTema.selectOption('alto-contraste')
+  await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
+})
+
