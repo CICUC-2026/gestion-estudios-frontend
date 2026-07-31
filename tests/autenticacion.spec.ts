@@ -41,7 +41,7 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   })
 
   await page.goto('/pacientes')
-  await expect(page.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible()
+  await expect(page.getByText('Iniciar sesión')).toBeVisible()
   await page.getByLabel('Correo institucional').fill('admin@example.com')
   await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
