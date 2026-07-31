@@ -9,8 +9,21 @@ test.beforeEach(async ({ page }) => {
 test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   let autenticado = false
 
-  await page.route('**/api/v1/autenticacion/yo', async (ruta) => {
-    if (autenticado) {
+  await page.route('**/api/v1/**', async (ruta) => {
+    const url = ruta.request().url()
+    if (url.includes('/autenticacion/ingresar')) {
+      autenticado = true
+      await ruta.fulfill({
+        status: 200,
+        json: {
+          token_acceso: 'token-ficticio',
+          tipo: 'bearer',
+          expira_en: '2026-07-17T20:00:00Z',
+        },
+      })
+      return
+    }
+    if (autenticado && url.includes('/autenticacion/yo')) {
       await ruta.fulfill({
         status: 200,
         json: {
@@ -24,21 +37,9 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
           creado_en: '2026-07-17T12:00:00Z',
         },
       })
-    } else {
-      await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
+      return
     }
-  })
-
-  await page.route('**/api/v1/autenticacion/ingresar', async (ruta) => {
-    autenticado = true
-    await ruta.fulfill({
-      status: 200,
-      json: {
-        token_acceso: 'token-ficticio',
-        tipo: 'bearer',
-        expira_en: '2026-07-17T20:00:00Z',
-      },
-    })
+    await ruta.fulfill({ status: 401, json: { mensaje: 'No autenticado' } })
   })
 
   await page.goto('/pacientes')
