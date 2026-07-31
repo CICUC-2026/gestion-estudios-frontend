@@ -49,10 +49,10 @@ test('protege una ruta y permite iniciar sesión', async ({ page }) => {
   })
 
   await page.goto('/ingresar')
-  const correoInput = page.getByLabel('Correo institucional')
+  const correoInput = page.locator('#correo-ingreso')
   await expect(correoInput).toBeVisible({ timeout: 15000 })
   await correoInput.fill('admin@example.com')
-  await page.getByLabel('Contraseña').fill('Contrasena-Demo-2026')
+  await page.locator('#contrasena-ingreso').fill('Contrasena-Demo-2026')
   await page.getByRole('button', { name: 'Ingresar' }).click()
 
   await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible({ timeout: 15000 })
