@@ -26,6 +26,9 @@ test.beforeEach(async ({ page }) => {
 test('navega mediante la barra superior y conserva idioma español', async ({ page }) => {
   await page.goto('/')
 
+  if ((page.viewportSize()?.width ?? 1024) <= 820) {
+    await page.getByRole('button', { name: 'Abrir menú principal' }).click()
+  }
   const navegacion = page.getByRole('navigation', { name: 'Navegación principal' })
   await expect(navegacion).toBeVisible()
   await page.getByRole('link', { name: 'Estudios' }).click()
@@ -34,10 +37,16 @@ test('navega mediante la barra superior y conserva idioma español', async ({ pa
 })
 
 test('la barra superior se mantiene disponible en viewport móvil', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
 
   await expect(page.getByRole('link', { name: 'CICUC, ir al inicio' })).toBeVisible()
+  await page.getByRole('button', { name: 'Abrir menú principal' }).click()
   await expect(page.getByRole('link', { name: 'Operación' })).toBeVisible()
+  await page.getByRole('link', { name: 'Estudios' }).click()
+  await expect(page).toHaveURL(/\/estudios$/)
+  await expect(page.getByRole('heading', { name: 'Estudios Clínicos' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Abrir menú principal' })).toBeVisible()
 })
 
 test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)', async ({ page }) => {
@@ -54,4 +63,3 @@ test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)
   await selectorTema.selectOption('alto-contraste')
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
 })
-

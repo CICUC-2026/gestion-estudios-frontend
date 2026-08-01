@@ -98,7 +98,7 @@ export function PaginaDetalleEstudio() {
   if (error || !estudio) return <p style={{ padding: '2rem', color: '#c53030' }}>Error: {error || 'Estudio no encontrado'}</p>
 
   return (
-    <>
+    <div className="pagina-detalle-estudio">
       <section className="encabezado-pagina">
         <div>
           <Link to="/estudios" className="boton-enlace" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>
@@ -111,8 +111,8 @@ export function PaginaDetalleEstudio() {
       </section>
 
       {/* Cabecera con etiquetas independientes (HU-030 y HU-032) */}
-      <section className="panel-tabla" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+      <section className="panel-tabla resumen-estados">
+        <div className="rejilla-estados">
           <div>
             <small style={{ display: 'block', color: '#666' }}>Estado Operacional</small>
             <strong style={{ fontSize: '1.1rem', textTransform: 'capitalize' }}>
@@ -131,39 +131,47 @@ export function PaginaDetalleEstudio() {
               {estudio.etiqueta_vigencia.replace('_', ' ')}
             </strong>
           </div>
-          <button type="button" onClick={() => void handleReconfirmarVigencia()} className="boton-primario" style={{ marginLeft: 'auto' }}>
-            Reconfirmar Vigencia Fuente
+          <button type="button" onClick={() => void handleReconfirmarVigencia()} className="boton-primario accion-vigencia">
+            Reconfirmar vigencia
           </button>
         </div>
       </section>
 
       {/* Pestañas de Navegación del Detalle (HU-034) */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', borderBottom: '2px solid #ddd' }}>
+      <div className="pestanas-detalle" role="tablist" aria-label="Secciones del estudio">
         <button
           type="button"
+          role="tab"
+          aria-selected={pestana === 'resumen'}
+          className={pestana === 'resumen' ? 'pestana activa' : 'pestana'}
           onClick={() => setPestana('resumen')}
-          style={{ padding: '0.6rem 1.2rem', background: pestana === 'resumen' ? '#fff' : 'transparent', border: '1px solid #ddd', borderBottom: pestana === 'resumen' ? '2px solid #0056b3' : 'none', cursor: 'pointer', fontWeight: pestana === 'resumen' ? 'bold' : 'normal' }}
         >
           Resumen General
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={pestana === 'cohortes'}
+          className={pestana === 'cohortes' ? 'pestana activa' : 'pestana'}
           onClick={() => setPestana('cohortes')}
-          style={{ padding: '0.6rem 1.2rem', background: pestana === 'cohortes' ? '#fff' : 'transparent', border: '1px solid #ddd', borderBottom: pestana === 'cohortes' ? '2px solid #0056b3' : 'none', cursor: 'pointer', fontWeight: pestana === 'cohortes' ? 'bold' : 'normal' }}
         >
           Cohortes y Brazos ({estudio.cohortes.length})
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={pestana === 'versiones'}
+          className={pestana === 'versiones' ? 'pestana activa' : 'pestana'}
           onClick={() => setPestana('versiones')}
-          style={{ padding: '0.6rem 1.2rem', background: pestana === 'versiones' ? '#fff' : 'transparent', border: '1px solid #ddd', borderBottom: pestana === 'versiones' ? '2px solid #0056b3' : 'none', cursor: 'pointer', fontWeight: pestana === 'versiones' ? 'bold' : 'normal' }}
         >
           Versiones e Inmutabilidad
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={pestana === 'historial'}
+          className={pestana === 'historial' ? 'pestana activa' : 'pestana'}
           onClick={() => setPestana('historial')}
-          style={{ padding: '0.6rem 1.2rem', background: pestana === 'historial' ? '#fff' : 'transparent', border: '1px solid #ddd', borderBottom: pestana === 'historial' ? '2px solid #0056b3' : 'none', cursor: 'pointer', fontWeight: pestana === 'historial' ? 'bold' : 'normal' }}
         >
           Historial de Cambios de Estado ({estudio.historial_estados.length})
         </button>
@@ -237,8 +245,8 @@ export function PaginaDetalleEstudio() {
         <section className="panel-tabla" style={{ padding: '1.5rem' }}>
           <h3>Historial de Cambios de Estado y Disponibilidad (Auditoría HU-030)</h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-            <form onSubmit={(e) => void handleCambiarEstadoOp(e)} style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '6px' }}>
+          <div className="rejilla-formularios-estado">
+            <form className="formulario-estado" onSubmit={(e) => void handleCambiarEstadoOp(e)}>
               <h4>Cambiar Estado Operacional</h4>
               <select value={nuevoEstadoOp} onChange={(e) => setNuevoEstadoOp(e.target.value)} style={{ width: '100%', padding: '0.4rem', marginTop: '0.5rem' }} required>
                 <option value="">Seleccione estado...</option>
@@ -252,7 +260,7 @@ export function PaginaDetalleEstudio() {
               <button type="submit" className="boton-primario" style={{ marginTop: '0.5rem' }}>Guardar Estado Operacional</button>
             </form>
 
-            <form onSubmit={(e) => void handleCambiarDisp(e)} style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '6px' }}>
+            <form className="formulario-estado" onSubmit={(e) => void handleCambiarDisp(e)}>
               <h4>Cambiar Disponibilidad</h4>
               <select value={nuevaDisp} onChange={(e) => setNuevaDisp(e.target.value)} style={{ width: '100%', padding: '0.4rem', marginTop: '0.5rem' }} required>
                 <option value="">Seleccione disponibilidad...</option>
@@ -267,7 +275,7 @@ export function PaginaDetalleEstudio() {
             </form>
           </div>
 
-          <table>
+          <div className="tabla-desplazable"><table>
             <thead>
               <tr>
                 <th>Fecha</th>
@@ -281,18 +289,18 @@ export function PaginaDetalleEstudio() {
             <tbody>
               {estudio.historial_estados.map((h) => (
                 <tr key={h.id}>
-                  <td>{new Date(h.fecha).toLocaleString()}</td>
-                  <td><strong>{h.campo_modificado}</strong></td>
-                  <td>{h.valor_anterior || 'None'}</td>
-                  <td><strong>{h.valor_nuevo}</strong></td>
-                  <td>{h.fuente}</td>
-                  <td>{h.motivo}</td>
+                  <td data-label="Fecha">{new Date(h.fecha).toLocaleString()}</td>
+                  <td data-label="Campo"><strong>{h.campo_modificado}</strong></td>
+                  <td data-label="Anterior">{h.valor_anterior || 'Sin valor'}</td>
+                  <td data-label="Nuevo"><strong>{h.valor_nuevo}</strong></td>
+                  <td data-label="Fuente">{h.fuente}</td>
+                  <td data-label="Motivo">{h.motivo}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </section>
       )}
-    </>
+    </div>
   )
 }

@@ -99,7 +99,7 @@ export function PaginaEstudios() {
 
   return (
     <>
-      <section className="encabezado-pagina" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <section className="encabezado-pagina">
         <div>
           <p className="sobrelinea">Inventario de Ensayos Oncológicos</p>
           <h1>Estudios Clínicos</h1>
@@ -111,7 +111,7 @@ export function PaginaEstudios() {
           onClick={() => setModalAbierto(true)}
           style={{ cursor: 'pointer', padding: '0.6rem 1.2rem', fontWeight: 'bold' }}
         >
-          + Crear Nuevo Estudio
+          <span aria-hidden="true">＋</span> Crear estudio
         </button>
       </section>
 
@@ -324,30 +324,30 @@ export function PaginaEstudios() {
                 ) : (
                   estudios.map((estudio) => (
                     <tr key={estudio.id}>
-                      <td><strong>{estudio.codigo_interno}</strong></td>
-                      <td>
+                      <td data-label="Código"><strong>{estudio.codigo_interno}</strong></td>
+                      <td data-label="Estudio">
                         <div><strong>{estudio.titulo}</strong></div>
                         <small style={{ color: '#666' }}>{estudio.patologia} · {estudio.linea_tratamiento}</small>
                       </td>
-                      <td>{estudio.fase} · {estudio.escenario_clinico}</td>
-                      <td>
+                      <td data-label="Fase y escenario">{estudio.fase} · {estudio.escenario_clinico}</td>
+                      <td data-label="Estado operacional">
                         <span className={`etiqueta-estado estado-${estudio.estado_operacional}`}>
                           {estudio.estado_operacional.replace('_', ' ')}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Disponibilidad">
                         <span className={`etiqueta-disponibilidad disp-${estudio.disponibilidad}`}>
                           {estudio.disponibilidad.replace('_', ' ')}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Vigencia de fuente">
                         <span className={`etiqueta-vigencia vig-${estudio.etiqueta_vigencia}`}>
                           {estudio.etiqueta_vigencia.replace('_', ' ')}
                         </span>
                       </td>
-                      <td>
-                        <Link to={`/estudios/${estudio.id}`} className="boton-enlace" style={{ padding: '0.4rem 0.8rem', background: '#0056b3', color: '#fff', borderRadius: '4px', textDecoration: 'none', fontSize: '0.85rem' }}>
-                          Ver detalle &rarr;
+                      <td data-label="Acción">
+                        <Link to={`/estudios/${estudio.id}`} className="boton-primario">
+                          Ver detalle <span aria-hidden="true">→</span>
                         </Link>
                       </td>
                     </tr>
