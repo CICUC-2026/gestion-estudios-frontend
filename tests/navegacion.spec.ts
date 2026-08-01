@@ -12,6 +12,25 @@ const usuario = {
 }
 
 test.beforeEach(async ({ page }) => {
+  const tareas: Array<Record<string, unknown>> = []
+  const reportes: Array<Record<string, unknown>> = []
+  await page.route('**/api/v1/tareas', async (ruta) => {
+    if (ruta.request().method() === 'POST') {
+      const datos = ruta.request().postDataJSON() as { titulo: string }
+      const tarea = { id: crypto.randomUUID(), titulo: datos.titulo, descripcion: null, prioridad: 'media', estado: 'pendiente', vence_en: null, creada_en: new Date().toISOString() }
+      tareas.unshift(tarea)
+      await ruta.fulfill({ status: 201, json: tarea }); return
+    }
+    await ruta.fulfill({ json: tareas })
+  })
+  await page.route('**/api/v1/reportes', async (ruta) => {
+    if (ruta.request().method() === 'POST') {
+      const reporte = { id: crypto.randomUUID(), nombre: 'Resumen operativo', finalidad: 'Seguimiento', fecha_corte: new Date().toISOString(), contenido: { estudios: 3, tareas_pendientes: tareas.length }, creado_en: new Date().toISOString() }
+      reportes.unshift(reporte)
+      await ruta.fulfill({ status: 201, json: reporte }); return
+    }
+    await ruta.fulfill({ json: reportes })
+  })
   await page.route('**/api/v1/estudios**', async (ruta) => {
     await ruta.fulfill({ json: [] })
   })
@@ -60,20 +79,20 @@ test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
 })
 
-test('las acciones demo de pacientes, operación y reportes tienen resultado visible', async ({ page }) => {
+test('las tareas y reportes se persisten mediante la API y pacientes informa su bloqueo', async ({ page }) => {
   await page.goto('./pacientes')
   await page.getByRole('button', { name: 'Registrar paciente de prueba' }).click()
-  await expect(page.getByRole('status')).toContainText('agregado temporalmente')
-  await expect(page.getByText('6 registros demo')).toBeVisible()
+  await expect(page.getByRole('status')).toContainText('decisiones #5 y #6')
 
   await page.getByRole('link', { name: 'Operación' }).click()
   await page.getByRole('button', { name: 'Nueva tarea' }).click()
-  await expect(page.getByRole('status')).toContainText('Tarea de prueba')
-  await expect(page.getByText('6 registros demo')).toBeVisible()
+  await page.getByLabel('Título de la tarea').fill('Confirmar vigencia de cupos')
+  await page.getByRole('button', { name: 'Guardar tarea' }).click()
+  await expect(page.getByRole('status')).toContainText('persistida en PostgreSQL')
+  await expect(page.getByText('1 registros')).toBeVisible()
 
   await page.getByRole('link', { name: 'Reportes' }).click()
-  const descarga = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Preparar reporte' }).click()
-  await expect(descarga).resolves.toBeTruthy()
-  await expect(page.getByRole('status')).toContainText('descargado como CSV')
+  await expect(page.getByRole('status')).toContainText('persistido en PostgreSQL')
+  await expect(page.getByText('1 registros')).toBeVisible()
 })
