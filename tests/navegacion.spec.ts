@@ -26,9 +26,6 @@ test.beforeEach(async ({ page }) => {
 test('navega mediante la barra superior y conserva idioma español', async ({ page }) => {
   await page.goto('/')
 
-  if ((page.viewportSize()?.width ?? 1024) <= 820) {
-    await page.getByRole('button', { name: 'Abrir menú principal' }).click()
-  }
   const navegacion = page.getByRole('navigation', { name: 'Navegación principal' })
   await expect(navegacion).toBeVisible()
   await page.getByRole('link', { name: 'Estudios' }).click()
@@ -41,12 +38,11 @@ test('la barra superior se mantiene disponible en viewport móvil', async ({ pag
   await page.goto('/')
 
   await expect(page.getByRole('link', { name: 'CICUC, ir al inicio' })).toBeVisible()
-  await page.getByRole('button', { name: 'Abrir menú principal' }).click()
   await expect(page.getByRole('link', { name: 'Operación' })).toBeVisible()
   await page.getByRole('link', { name: 'Estudios' }).click()
   await expect(page).toHaveURL(/\/estudios$/)
   await expect(page.getByRole('heading', { name: 'Estudios Clínicos' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Abrir menú principal' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Operación' })).toBeVisible()
 })
 
 test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)', async ({ page }) => {
@@ -62,4 +58,22 @@ test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)
   // Seleccionar alto contraste
   await selectorTema.selectOption('alto-contraste')
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
+})
+
+test('las acciones demo de pacientes, operación y reportes tienen resultado visible', async ({ page }) => {
+  await page.goto('./pacientes')
+  await page.getByRole('button', { name: 'Registrar paciente de prueba' }).click()
+  await expect(page.getByRole('status')).toContainText('agregado temporalmente')
+  await expect(page.getByText('6 registros demo')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Operación' }).click()
+  await page.getByRole('button', { name: 'Nueva tarea' }).click()
+  await expect(page.getByRole('status')).toContainText('Tarea de prueba')
+  await expect(page.getByText('6 registros demo')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Reportes' }).click()
+  const descarga = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Preparar reporte' }).click()
+  await expect(descarga).resolves.toBeTruthy()
+  await expect(page.getByRole('status')).toContainText('descargado como CSV')
 })

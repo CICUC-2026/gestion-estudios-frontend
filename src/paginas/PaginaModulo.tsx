@@ -37,7 +37,7 @@ const modulos: Record<Modulo, DatosModulo> = {
   pacientes: {
     titulo: 'Pacientes',
     descripcion: 'Casos ficticios y minimizados para probar la coordinación sin utilizar identidades reales.',
-    accion: 'Registrar caso demo',
+    accion: 'Registrar paciente de prueba',
     indicadores: [
       { etiqueta: 'Casos en seguimiento', valor: '24', detalle: 'Datos anonimizados' },
       { etiqueta: 'Por revisar', valor: '6', detalle: 'Sin decisión automática' },
@@ -103,19 +103,62 @@ const modulos: Record<Modulo, DatosModulo> = {
 
 export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   const datos = modulos[modulo]
+  const [filasPorModulo, setFilasPorModulo] = useState<Record<Modulo, Fila[]>>(() => ({
+    estudios: modulos.estudios.filas,
+    pacientes: modulos.pacientes.filas,
+    operacion: modulos.operacion.filas,
+    reportes: modulos.reportes.filas,
+  }))
+  const filas = filasPorModulo[modulo]
+  const [mensaje, setMensaje] = useState<string | null>(null)
+
+  const agregarFila = (fila: Fila) => {
+    setFilasPorModulo((actuales) => ({ ...actuales, [modulo]: [fila, ...actuales[modulo]] }))
+  }
+
+  function ejecutarAccion() {
+    if (modulo === 'pacientes') {
+      const correlativo = String(filas.length + 36).padStart(4, '0')
+      agregarFila({ codigo: `PX-DEMO-${correlativo}`, rango: 'Sin registrar', diagnostico: 'Pendiente', estudio: 'Por asociar', estado: 'Caso demo nuevo', responsable: 'Sin asignar' })
+      setMensaje('Paciente de prueba agregado temporalmente. No fue persistido en el backend.')
+      return
+    }
+    if (modulo === 'operacion') {
+      agregarFila({ prioridad: 'Media', tarea: 'Nueva tarea de demostración', caso: 'Por asociar', responsable: 'Sin asignar', plazo: 'Sin definir', estado: 'Borrador demo' })
+      setMensaje('Tarea de prueba agregada temporalmente. No fue persistida en el backend.')
+      return
+    }
+    if (modulo === 'reportes') {
+      const encabezado = datos.columnas.map((columna) => columna.etiqueta)
+      const escapar = (valor: string) => `"${valor.replaceAll('"', '""')}"`
+      const contenido = [encabezado, ...filas.map((fila) => datos.columnas.map((columna) => fila[columna.clave] ?? ''))]
+        .map((fila) => fila.map(escapar).join(','))
+        .join('\n')
+      const url = URL.createObjectURL(new Blob([contenido], { type: 'text/csv;charset=utf-8' }))
+      const enlace = document.createElement('a')
+      enlace.href = url
+      enlace.download = 'reporte-operativo-demo.csv'
+      enlace.click()
+      URL.revokeObjectURL(url)
+      setMensaje('Reporte demo preparado y descargado como CSV.')
+    }
+  }
+
   return (
     <>
       <section className="encabezado-pagina">
         <div><p className="sobrelinea">Entorno de demostración</p><h1>{datos.titulo}</h1><p>{datos.descripcion}</p></div>
-        <button className="boton-primario boton-sin-accion" type="button" title="Acción ilustrativa para la demostración">{datos.accion}</button>
+        <button className="boton-primario" type="button" onClick={ejecutarAccion}>{datos.accion}</button>
       </section>
+      {mensaje ? <p className="mensaje-accion-demo" role="status">{mensaje}</p> : null}
       <section className="rejilla-indicadores" aria-label={`Indicadores de ${datos.titulo}`}>
         {datos.indicadores.map((item) => <article className="tarjeta-indicador" key={item.etiqueta}><p>{item.etiqueta}</p><strong>{item.valor}</strong><small>{item.detalle}</small></article>)}
       </section>
       <section className="panel-tabla">
-        <div className="cabecera-tabla"><div><p className="sobrelinea">Información ficticia</p><h2>Vista general</h2></div><span>{datos.filas.length} registros demo</span></div>
-        <div className="tabla-desplazable"><table><thead><tr>{datos.columnas.map((columna) => <th key={columna.clave}>{columna.etiqueta}</th>)}</tr></thead><tbody>{datos.filas.map((fila, indice) => <tr key={`${modulo}-${indice}`}>{datos.columnas.map((columna) => <td key={columna.clave}>{fila[columna.clave]}</td>)}</tr>)}</tbody></table></div>
+        <div className="cabecera-tabla"><div><p className="sobrelinea">Información ficticia</p><h2>Vista general</h2></div><span>{filas.length} registros demo</span></div>
+        <div className="tabla-desplazable"><table><thead><tr>{datos.columnas.map((columna) => <th key={columna.clave}>{columna.etiqueta}</th>)}</tr></thead><tbody>{filas.map((fila, indice) => <tr key={`${modulo}-${indice}`}>{datos.columnas.map((columna) => <td data-label={columna.etiqueta} key={columna.clave}>{fila[columna.clave]}</td>)}</tr>)}</tbody></table></div>
       </section>
     </>
   )
 }
+import { useState } from 'react'
