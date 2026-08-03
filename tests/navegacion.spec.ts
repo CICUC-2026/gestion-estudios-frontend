@@ -79,10 +79,19 @@ test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
 })
 
-test('las tareas y reportes se persisten mediante la API y pacientes informa su bloqueo', async ({ page }) => {
+test('pacientes permite una demo ficticia local y operación persiste mediante API', async ({ page }) => {
   await page.goto('./pacientes')
-  await page.getByRole('button', { name: 'Registrar paciente de prueba' }).click()
-  await expect(page.getByRole('status')).toContainText('decisiones #5 y #6')
+  await expect(page.getByText('Solo demostración')).toBeVisible()
+  await page.getByRole('button', { name: 'Agregar caso ficticio' }).click()
+  await page.getByLabel('Código ficticio').fill('PX-DEMO-0021')
+  await page.getByLabel('Patología ficticia').fill('Patología ficticia B')
+  await page.getByRole('button', { name: 'Guardar en este navegador' }).click()
+  await expect(page.getByRole('status')).toContainText('únicamente en este navegador')
+  await expect(page.getByText('PX-DEMO-0021')).toBeVisible()
+  await page.reload()
+  await expect(page.getByText('PX-DEMO-0021')).toBeVisible()
+  await page.getByRole('button', { name: 'Reiniciar demo' }).click()
+  await expect(page.getByText('PX-DEMO-0021')).not.toBeVisible()
 
   await page.getByRole('link', { name: 'Operación' }).click()
   await page.getByRole('button', { name: 'Nueva tarea' }).click()

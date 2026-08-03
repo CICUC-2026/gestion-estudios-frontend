@@ -7,6 +7,7 @@ import { PaginaModulo } from '../paginas/PaginaModulo'
 import { PaginaEstudios } from '../paginas/PaginaEstudios'
 import { PaginaDetalleEstudio } from '../paginas/PaginaDetalleEstudio'
 import { PaginaNoEncontrada } from '../paginas/PaginaNoEncontrada'
+import { PaginaPacientesDemo } from '../paginas/PaginaPacientesDemo'
 import { RutaProtegida } from './RutaProtegida'
 
 export function RutasAplicacion() {
@@ -18,7 +19,7 @@ export function RutasAplicacion() {
           <Route index element={<PaginaInicio />} />
           <Route path="estudios" element={<PaginaEstudios />} />
           <Route path="estudios/:id" element={<PaginaDetalleEstudio />} />
-          <Route path="pacientes" element={<PaginaModulo modulo="pacientes" />} />
+          <Route path="pacientes" element={<PaginaPacientesDemo />} />
           <Route path="operacion" element={<PaginaModulo modulo="operacion" />} />
           <Route path="reportes" element={<PaginaModulo modulo="reportes" />} />
           <Route path="inicio" element={<Navigate replace to="/" />} />

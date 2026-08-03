@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react'
 
 import { crearTarea, obtenerReportes, obtenerTareas, prepararReporte, type Reporte, type Tarea } from '../dominios/operacion/apiOperacion'
 
-type Modulo = 'pacientes' | 'operacion' | 'reportes'
+type Modulo = 'operacion' | 'reportes'
 type Fila = Record<string, string>
 
 const configuracion: Record<Modulo, { titulo: string; descripcion: string; accion: string; columnas: Array<[string, string]>; filas: Fila[] }> = {
-  pacientes: { titulo: 'Pacientes', descripcion: 'Casos ficticios y minimizados; la persistencia requiere aprobación clínica y legal.', accion: 'Registrar paciente de prueba', columnas: [['codigo', 'Código de caso'], ['estado', 'Seguimiento']], filas: [{ codigo: 'PX-DEMO-0018', estado: 'Antecedentes pendientes' }] },
   operacion: { titulo: 'Operación', descripcion: 'Tareas administrativas persistidas y auditadas.', accion: 'Nueva tarea', columnas: [['prioridad', 'Prioridad'], ['tarea', 'Tarea'], ['plazo', 'Plazo'], ['estado', 'Estado']], filas: [] },
   reportes: { titulo: 'Reportes', descripcion: 'Cortes operativos persistidos; no contienen interpretación clínica.', accion: 'Preparar reporte', columnas: [['reporte', 'Reporte'], ['corte', 'Fecha de corte'], ['alcance', 'Alcance'], ['estado', 'Estado']], filas: [] },
 }
@@ -28,10 +27,6 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   }, [modulo])
 
   async function ejecutarAccion() {
-    if (modulo === 'pacientes') {
-      setMensaje('Registro bloqueado: CICUC debe resolver las decisiones #5 y #6 y aceptar ADR-007 antes de persistir pacientes.')
-      return
-    }
     if (modulo === 'operacion') {
       setMostrarFormulario(true)
       return
