@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, vi } from 'vitest'
@@ -85,7 +85,7 @@ describe('Autenticación', () => {
     await usuario.click(screen.getByRole('button', { name: 'Ingresar' }))
 
     expect(await screen.findByRole('heading', { name: 'Pacientes' })).toBeVisible()
-    expect(fetchSimulado).toHaveBeenCalledTimes(4)
+    await waitFor(() => expect(fetchSimulado).toHaveBeenCalledTimes(4))
   })
 
   it('muestra un error genérico sin revelar estado de cuenta', async () => {
