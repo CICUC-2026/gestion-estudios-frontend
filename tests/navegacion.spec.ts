@@ -14,7 +14,9 @@ const usuario = {
 test.beforeEach(async ({ page }) => {
   const tareas: Array<Record<string, unknown>> = []
   const reportes: Array<Record<string, unknown>> = []
-  const pacientes: Array<Record<string, unknown>> = []
+  const pacientes: Array<Record<string, unknown>> = [{ id: 'paciente-demo-1', codigo: 'PX-DEMO-0001', rango_etario: '50–64 años', patologia: 'Ficticia', estado: 'antecedentes_pendientes', sintetico: true, archivado: false }]
+  const preselecciones: Array<Record<string, unknown>> = []
+  const estudioDemo = { id: 'estudio-demo-1', codigo_interno: 'EST-DEMO-1', titulo: 'Estudio ficticio', patrocinador: 'Demo', fase: 'Demo', patologia: 'Ficticia', escenario_clinico: 'Ficticio', linea_tratamiento: 'Ficticia', centro_atencion: 'CICUC', estado_operacional: 'activado', disponibilidad: 'con_cupo', estado: 'vigente', disponible: true, fuente_informacion: 'Demo', fecha_corte: null, fecha_verificacion: null, proxima_revision: null, etiqueta_vigencia: 'vigente', observaciones: null, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString(), cohortes: [], historial_estados: [], version_vigente: { id: 'version-demo-1', numero_version: '1.0', criterios: [{ id: 'criterio-demo-1', codigo_criterio: 'INC-DEMO', descripcion: 'Criterio exclusivamente ficticio' }] } }
   await page.route('**/api/v1/tareas**', async (ruta) => {
     if (ruta.request().method() === 'PATCH') {
       const datos = ruta.request().postDataJSON() as { estado: string }
@@ -48,7 +50,20 @@ test.beforeEach(async ({ page }) => {
     await ruta.fulfill({ json: reportes })
   })
   await page.route('**/api/v1/estudios**', async (ruta) => {
-    await ruta.fulfill({ json: [] })
+    await ruta.fulfill({ json: [estudioDemo] })
+  })
+  await page.route('**/api/v1/preselecciones-demo**', async (ruta) => {
+    if (ruta.request().method() === 'POST') {
+      const datos = ruta.request().postDataJSON() as Record<string, unknown>
+      const item = { id: 'preseleccion-demo-1', ...datos, estado: 'pendiente_revision', resumen: null, evaluaciones: [], historial: [] }
+      preselecciones.unshift(item); await ruta.fulfill({ status: 201, json: item }); return
+    }
+    if (ruta.request().method() === 'PUT') {
+      const item = preselecciones[0] ?? {}
+      item.evaluaciones = [{ id: 'evaluacion-1', criterio_id: 'criterio-demo-1', ...(ruta.request().postDataJSON() as object) }]
+      await ruta.fulfill({ json: item }); return
+    }
+    await ruta.fulfill({ json: preselecciones })
   })
   await page.route('**/api/v1/autenticacion/yo', async (ruta) => {
     await ruta.fulfill({ json: usuario })
@@ -120,4 +135,15 @@ test('pacientes y tareas se persisten mediante la API', async ({ page }) => {
   await page.getByRole('button', { name: 'Preparar reporte' }).click()
   await expect(page.getByRole('status')).toContainText('persistido en PostgreSQL')
   await expect(page.getByText('1 registros')).toBeVisible()
+})
+
+test('crea y evalúa una preselección exclusivamente sintética', async ({ page }) => {
+  await page.goto('./preseleccion')
+  await expect(page.getByText('Sin elegibilidad automática')).toBeVisible()
+  await page.getByRole('button', { name: 'Crear revisión manual' }).click()
+  await expect(page.getByRole('status')).toContainText('no determina elegibilidad')
+  await page.getByRole('button', { name: 'Revisar' }).click()
+  await expect(page.getByText('Criterio exclusivamente ficticio')).toBeVisible()
+  await page.getByLabel('Evaluación manual').selectOption('dudoso')
+  await expect(page.getByRole('status')).toContainText('no constituye elegibilidad')
 })
