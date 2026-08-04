@@ -64,6 +64,18 @@ describe('Autenticación', () => {
           { status: 200, headers: { 'Content-Type': 'application/json' } },
         ),
       )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
     vi.stubGlobal('fetch', fetchSimulado)
     const usuario = userEvent.setup()
     renderizar('/pacientes')
@@ -73,7 +85,7 @@ describe('Autenticación', () => {
     await usuario.click(screen.getByRole('button', { name: 'Ingresar' }))
 
     expect(await screen.findByRole('heading', { name: 'Pacientes' })).toBeVisible()
-    expect(fetchSimulado).toHaveBeenCalledTimes(2)
+    expect(fetchSimulado).toHaveBeenCalledTimes(4)
   })
 
   it('muestra un error genérico sin revelar estado de cuenta', async () => {

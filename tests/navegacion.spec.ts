@@ -14,7 +14,14 @@ const usuario = {
 test.beforeEach(async ({ page }) => {
   const tareas: Array<Record<string, unknown>> = []
   const reportes: Array<Record<string, unknown>> = []
-  await page.route('**/api/v1/tareas', async (ruta) => {
+  const pacientes: Array<Record<string, unknown>> = []
+  await page.route('**/api/v1/tareas**', async (ruta) => {
+    if (ruta.request().method() === 'PATCH') {
+      const datos = ruta.request().postDataJSON() as { estado: string }
+      const tarea = tareas[0] ?? {}
+      Object.assign(tarea, datos)
+      await ruta.fulfill({ json: tarea }); return
+    }
     if (ruta.request().method() === 'POST') {
       const datos = ruta.request().postDataJSON() as { titulo: string }
       const tarea = { id: crypto.randomUUID(), titulo: datos.titulo, descripcion: null, prioridad: 'media', estado: 'pendiente', vence_en: null, creada_en: new Date().toISOString() }
@@ -22,6 +29,15 @@ test.beforeEach(async ({ page }) => {
       await ruta.fulfill({ status: 201, json: tarea }); return
     }
     await ruta.fulfill({ json: tareas })
+  })
+  await page.route('**/api/v1/pacientes-demo**', async (ruta) => {
+    if (ruta.request().method() === 'POST' && !ruta.request().url().includes('/diagnosticos') && !ruta.request().url().includes('/estudios')) {
+      const datos = ruta.request().postDataJSON() as Record<string, unknown>
+      const paciente = { id: crypto.randomUUID(), ...datos, sintetico: true, archivado: false, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() }
+      pacientes.unshift(paciente)
+      await ruta.fulfill({ status: 201, json: paciente }); return
+    }
+    await ruta.fulfill({ json: pacientes })
   })
   await page.route('**/api/v1/reportes', async (ruta) => {
     if (ruta.request().method() === 'POST') {
@@ -79,19 +95,17 @@ test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
 })
 
-test('pacientes permite una demo ficticia local y operación persiste mediante API', async ({ page }) => {
+test('pacientes y tareas se persisten mediante la API', async ({ page }) => {
   await page.goto('./pacientes')
-  await expect(page.getByText('Solo demostración')).toBeVisible()
-  await page.getByRole('button', { name: 'Agregar caso ficticio' }).click()
+  await expect(page.getByText('Solo datos ficticios')).toBeVisible()
+  await page.getByRole('button', { name: 'Agregar paciente sintético' }).click()
   await page.getByLabel('Código ficticio').fill('PX-DEMO-0021')
   await page.getByLabel('Patología ficticia').fill('Patología ficticia B')
-  await page.getByRole('button', { name: 'Guardar en este navegador' }).click()
-  await expect(page.getByRole('status')).toContainText('únicamente en este navegador')
+  await page.getByRole('button', { name: 'Guardar en PostgreSQL' }).click()
+  await expect(page.getByRole('status')).toContainText('persistido en PostgreSQL')
   await expect(page.getByText('PX-DEMO-0021')).toBeVisible()
   await page.reload()
   await expect(page.getByText('PX-DEMO-0021')).toBeVisible()
-  await page.getByRole('button', { name: 'Reiniciar demo' }).click()
-  await expect(page.getByText('PX-DEMO-0021')).not.toBeVisible()
 
   await page.getByRole('link', { name: 'Operación' }).click()
   await page.getByRole('button', { name: 'Nueva tarea' }).click()
@@ -99,6 +113,8 @@ test('pacientes permite una demo ficticia local y operación persiste mediante A
   await page.getByRole('button', { name: 'Guardar tarea' }).click()
   await expect(page.getByRole('status')).toContainText('persistida en PostgreSQL')
   await expect(page.getByText('1 registros')).toBeVisible()
+  await page.getByRole('button', { name: 'Completar' }).click()
+  await expect(page.getByRole('status')).toContainText('completada')
 
   await page.getByRole('link', { name: 'Reportes' }).click()
   await page.getByRole('button', { name: 'Preparar reporte' }).click()
