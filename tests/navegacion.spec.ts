@@ -89,7 +89,9 @@ test('la barra superior se mantiene disponible en viewport móvil', async ({ pag
 
   await expect(page.getByRole('link', { name: 'CICUC, ir al inicio' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Operación' })).toBeVisible()
-  await page.getByRole('link', { name: 'Estudios' }).click()
+  const enlaceEstudios = page.getByRole('link', { name: 'Estudios' })
+  await enlaceEstudios.focus()
+  await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/estudios$/)
   await expect(page.getByRole('heading', { name: 'Estudios Clínicos' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Operación' })).toBeVisible()
