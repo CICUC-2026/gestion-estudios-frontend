@@ -9,6 +9,7 @@ import { PaginaDetalleEstudio } from "../paginas/PaginaDetalleEstudio";
 import { PaginaNoEncontrada } from "../paginas/PaginaNoEncontrada";
 import { PaginaPacientesDemo } from "../paginas/PaginaPacientesDemo";
 import { PaginaPreseleccionDemo } from "../paginas/PaginaPreseleccionDemo";
+import { PaginaCuposDemo } from "../paginas/PaginaCuposDemo";
 import { RutaProtegida } from "./RutaProtegida";
 
 export function RutasAplicacion() {
@@ -22,6 +23,7 @@ export function RutasAplicacion() {
           <Route path="estudios/:id" element={<PaginaDetalleEstudio />} />
           <Route path="pacientes" element={<PaginaPacientesDemo />} />
           <Route path="preseleccion" element={<PaginaPreseleccionDemo />} />
+          <Route path="cupos" element={<PaginaCuposDemo />} />
           <Route
             path="operacion"
             element={<PaginaModulo modulo="operacion" />}

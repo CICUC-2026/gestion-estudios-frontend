@@ -8,6 +8,7 @@ const navegacion = [
   { etiqueta: "Estudios", ruta: "/estudios", icono: "▤" },
   { etiqueta: "Pacientes", ruta: "/pacientes", icono: "♙" },
   { etiqueta: "Preselección", ruta: "/preseleccion", icono: "◇" },
+  { etiqueta: "Cupos", ruta: "/cupos", icono: "▣" },
   { etiqueta: "Operación", ruta: "/operacion", icono: "✓" },
   { etiqueta: "Reportes", ruta: "/reportes", icono: "▥" },
 ];
