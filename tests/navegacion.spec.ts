@@ -105,9 +105,19 @@ test('permite seleccionar temas visuales (estándar, alto contraste, daltonismo)
   await selectorTema.selectOption('daltonismo')
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'daltonismo')
 
+  await page.reload()
+  await expect(page.locator('html')).toHaveAttribute('data-tema', 'daltonismo')
+  await expect(selectorTema).toHaveValue('daltonismo')
+
   // Seleccionar alto contraste
   await selectorTema.selectOption('alto-contraste')
   await expect(page.locator('html')).toHaveAttribute('data-tema', 'alto-contraste')
+
+  await page.keyboard.press('Tab')
+  const foco = page.locator(':focus-visible')
+  await expect(foco).toBeVisible()
+  const contorno = await foco.evaluate((elemento) => getComputedStyle(elemento).outlineStyle)
+  expect(contorno).not.toBe('none')
 })
 
 test('pacientes y tareas se persisten mediante la API', async ({ page }) => {

@@ -113,7 +113,7 @@ export function LayoutPrincipal() {
                 onChange={(e) => cambiarTema(e.target.value as TipoTema)}
                 aria-label="Seleccionar tema visual"
               >
-                <option value="estandar">Verde Opaco (Estándar)</option>
+                <option value="estandar">Estándar CICUC (Verde Opaco)</option>
                 <option value="alto-contraste">Alto Contraste</option>
                 <option value="daltonismo">Adaptado Daltonismo</option>
               </select>
