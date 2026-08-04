@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 
 import { useSesion } from "../dominios/autenticacion/sesionContexto";
 import { useTema, type TipoTema } from "./temaContexto";
@@ -147,21 +148,24 @@ export function LayoutPrincipal() {
         </main>
       </div>
 
-      <nav className="nav-mobile" aria-label="Navegación principal">
-        {navegacion.map((item) => (
-          <NavLink
-            className={({ isActive }) =>
-              isActive ? "nav-mobile-item activo" : "nav-mobile-item"
-            }
-            end={item.ruta === "/"}
-            key={item.ruta}
-            to={item.ruta}
-          >
-            <span aria-hidden="true">{item.icono}</span>
-            <small>{item.etiqueta}</small>
-          </NavLink>
-        ))}
-      </nav>
+      {createPortal(
+        <nav className="nav-mobile" aria-label="Navegación principal">
+          {navegacion.map((item) => (
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? "nav-mobile-item activo" : "nav-mobile-item"
+              }
+              end={item.ruta === "/"}
+              key={item.ruta}
+              to={item.ruta}
+            >
+              <span aria-hidden="true">{item.icono}</span>
+              <small>{item.etiqueta}</small>
+            </NavLink>
+          ))}
+        </nav>,
+        document.body,
+      )}
     </div>
   );
 }
