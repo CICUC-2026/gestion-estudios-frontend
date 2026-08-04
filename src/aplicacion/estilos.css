@@ -208,7 +208,8 @@ tbody tr:last-child td { border-bottom: 0; }
 
 @media (max-width: 820px) {
   .sidebar { display: none; }
-  .area-principal { width: 100%; margin-left: 0; }
+  .area-principal { width: 100%; margin-left: 0; pointer-events: none; }
+  .area-principal > * { pointer-events: auto; }
   .topbar { height: 56px; padding: 0 16px; }
   .marca-mobile { display: flex; }
   .breadcrumb { display: none; }
