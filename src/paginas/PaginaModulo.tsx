@@ -22,6 +22,8 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   const [mensaje, setMensaje] = useState<string | null>(null)
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [titulo, setTitulo] = useState('')
+  const [descripcion, setDescripcion] = useState('')
+  const [vencimiento, setVencimiento] = useState('')
   const [prioridad, setPrioridad] = useState('media')
   const [pacienteId, setPacienteId] = useState('')
   const [pacientes, setPacientes] = useState<PacienteDemo[]>([])
@@ -55,9 +57,11 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
     evento.preventDefault()
     setGuardando(true)
     try {
-      await crearTarea({ titulo, prioridad, paciente_id: pacienteId || undefined, estudio_id: estudioId || undefined })
+      await crearTarea({ titulo, descripcion: descripcion || undefined, prioridad, vence_en: vencimiento ? new Date(vencimiento).toISOString() : undefined, paciente_id: pacienteId || undefined, estudio_id: estudioId || undefined })
       setFilas(filasTareas(await obtenerTareas()))
       setTitulo('')
+      setDescripcion('')
+      setVencimiento('')
       setMostrarFormulario(false)
       setMensaje('Tarea creada y persistida en PostgreSQL.')
     } catch { setMensaje('No fue posible crear la tarea.') } finally { setGuardando(false) }
@@ -74,7 +78,7 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   return <>
     <section className="encabezado-pagina"><div><p className="sobrelinea">Operación CICUC</p><h1>{datos.titulo}</h1><p>{datos.descripcion}</p></div><button className="boton-primario" disabled={guardando} type="button" onClick={() => void ejecutarAccion()}>{guardando ? 'Guardando…' : datos.accion}</button></section>
     {mensaje ? <p className="mensaje-accion-demo" role="status">{mensaje}</p> : null}
-    {mostrarFormulario ? <form className="formulario-tarea" onSubmit={(evento) => void guardarTarea(evento)}><label>Título de la tarea<input required value={titulo} onChange={(evento) => setTitulo(evento.target.value)} /></label><label>Prioridad<select value={prioridad} onChange={(evento) => setPrioridad(evento.target.value)}><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></label><label>Paciente sintético opcional<select value={pacienteId} onChange={(evento) => setPacienteId(evento.target.value)}><option value="">Sin paciente</option>{pacientes.map((paciente) => <option value={paciente.id} key={paciente.id}>{paciente.codigo}</option>)}</select></label><label>Estudio opcional<select value={estudioId} onChange={(evento) => setEstudioId(evento.target.value)}><option value="">Sin estudio</option>{estudios.map((estudio) => <option value={estudio.id} key={estudio.id}>{estudio.codigo_interno}</option>)}</select></label><button className="boton-primario" disabled={guardando} type="submit">Guardar tarea</button></form> : null}
+    {mostrarFormulario ? <form className="formulario-tarea" onSubmit={(evento) => void guardarTarea(evento)}><label>Título de la tarea<input required value={titulo} onChange={(evento) => setTitulo(evento.target.value)} /></label><label>Descripción administrativa<input value={descripcion} onChange={(evento) => setDescripcion(evento.target.value)} /></label><label>Vencimiento<input type="datetime-local" value={vencimiento} onChange={(evento) => setVencimiento(evento.target.value)} /></label><label>Prioridad<select value={prioridad} onChange={(evento) => setPrioridad(evento.target.value)}><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></label><label>Paciente sintético opcional<select value={pacienteId} onChange={(evento) => setPacienteId(evento.target.value)}><option value="">Sin paciente</option>{pacientes.map((paciente) => <option value={paciente.id} key={paciente.id}>{paciente.codigo}</option>)}</select></label><label>Estudio opcional<select value={estudioId} onChange={(evento) => setEstudioId(evento.target.value)}><option value="">Sin estudio</option>{estudios.map((estudio) => <option value={estudio.id} key={estudio.id}>{estudio.codigo_interno}</option>)}</select></label><button className="boton-primario" disabled={guardando} type="submit">Guardar tarea</button></form> : null}
     <section className="panel-tabla"><div className="cabecera-tabla"><div><p className="sobrelinea">Datos persistidos</p><h2>Vista general</h2></div><span>{filas.length} registros</span></div><div className="tabla-desplazable"><table><thead><tr>{datos.columnas.map(([clave, etiqueta]) => <th key={clave}>{etiqueta}</th>)}</tr></thead><tbody>{filas.length === 0 ? <tr><td colSpan={datos.columnas.length}>No hay registros todavía.</td></tr> : filas.map((fila, indice) => <tr key={fila.id || indice}>{datos.columnas.map(([clave, etiqueta]) => <td data-label={etiqueta} key={clave}>{clave === 'acciones' ? <div className="acciones-tabla"><button type="button" onClick={() => void cambiarEstadoTarea(fila.id, 'en_curso')}>Iniciar</button><button type="button" onClick={() => void cambiarEstadoTarea(fila.id, 'completada')}>Completar</button><button type="button" onClick={() => void cambiarEstadoTarea(fila.id, 'cancelada')}>Cancelar</button></div> : fila[clave]}</td>)}</tr>)}</tbody></table></div></section>
   </>
 }
