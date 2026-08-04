@@ -14,7 +14,7 @@ const configuracion: Record<Modulo, { titulo: string; descripcion: string; accio
 }
 
 const filasTareas = (tareas: Tarea[]): Fila[] => tareas.map((tarea) => ({ id: tarea.id, prioridad: tarea.prioridad, tarea: tarea.titulo, plazo: tarea.vence_en ? new Date(tarea.vence_en).toLocaleString() : 'Sin definir', estado: tarea.estado.replace('_', ' '), acciones: '' }))
-const filasReportes = (reportes: Reporte[]): Fila[] => reportes.map((reporte) => ({ id: reporte.id, reporte: reporte.nombre, corte: new Date(reporte.fecha_corte).toLocaleString(), alcance: `${reporte.contenido.estudios ?? 0} estudios · ${reporte.contenido.tareas_pendientes ?? 0} tareas pendientes`, estado: 'Disponible' }))
+const filasReportes = (reportes: Reporte[]): Fila[] => reportes.map((reporte) => ({ id: reporte.id, reporte: reporte.nombre, corte: new Date(reporte.fecha_corte).toLocaleString(), alcance: `${reporte.contenido.metricas?.estudios?.presentacion ?? reporte.contenido.estudios} estudios · ${reporte.contenido.metricas?.tareas_pendientes?.presentacion ?? reporte.contenido.tareas_pendientes} tareas pendientes`, estado: 'Disponible · solo operativo' }))
 
 export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   const datos = configuracion[modulo]
@@ -30,6 +30,8 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   const [estudios, setEstudios] = useState<Estudio[]>([])
   const [estudioId, setEstudioId] = useState('')
   const [guardando, setGuardando] = useState(false)
+  const [corteReporte, setCorteReporte] = useState('')
+  const [estadoTareaReporte, setEstadoTareaReporte] = useState('')
 
   useEffect(() => {
     if (modulo === 'operacion') {
@@ -37,7 +39,10 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
       void obtenerPacientesDemo().then(setPacientes).catch(() => setPacientes([]))
       void obtenerEstudios().then(setEstudios).catch(() => setEstudios([]))
     }
-    if (modulo === 'reportes') void obtenerReportes().then((items) => setFilas(filasReportes(items)))
+    if (modulo === 'reportes') {
+      void obtenerReportes().then((items) => setFilas(filasReportes(items)))
+      void obtenerEstudios().then(setEstudios).catch(() => setEstudios([]))
+    }
   }, [modulo])
 
   async function ejecutarAccion() {
@@ -47,7 +52,7 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
     }
     setGuardando(true)
     try {
-      await prepararReporte()
+      await prepararReporte({ fecha_corte: corteReporte ? new Date(corteReporte).toISOString() : undefined, estudio_id: estudioId || undefined, estados_tarea: estadoTareaReporte ? [estadoTareaReporte] : undefined })
       setFilas(filasReportes(await obtenerReportes()))
       setMensaje('Reporte operativo preparado y persistido en PostgreSQL.')
     } catch { setMensaje('No fue posible preparar el reporte.') } finally { setGuardando(false) }
@@ -78,6 +83,7 @@ export function PaginaModulo({ modulo }: { modulo: Modulo }) {
   return <>
     <section className="encabezado-pagina"><div><p className="sobrelinea">Operación CICUC</p><h1>{datos.titulo}</h1><p>{datos.descripcion}</p></div><button className="boton-primario" disabled={guardando} type="button" onClick={() => void ejecutarAccion()}>{guardando ? 'Guardando…' : datos.accion}</button></section>
     {mensaje ? <p className="mensaje-accion-demo" role="status">{mensaje}</p> : null}
+    {modulo === 'reportes' ? <><aside className="aviso-prototipo"><strong>Reporte operativo reproducible</strong><span>Los grupos pequeños se muestran como &lt;5. No expresa eficacia, elegibilidad ni riesgo clínico.</span></aside><div className="formulario-tarea"><label>Fecha de corte opcional<input type="datetime-local" value={corteReporte} onChange={(evento) => setCorteReporte(evento.target.value)} /></label><label>Estudio opcional<select value={estudioId} onChange={(evento) => setEstudioId(evento.target.value)}><option value="">Todos los estudios</option>{estudios.map((estudio) => <option value={estudio.id} key={estudio.id}>{estudio.codigo_interno}</option>)}</select></label><label>Estado de tarea opcional<select value={estadoTareaReporte} onChange={(evento) => setEstadoTareaReporte(evento.target.value)}><option value="">Todos los estados</option><option value="pendiente">Pendiente</option><option value="en_curso">En curso</option><option value="bloqueada">Bloqueada</option><option value="completada">Completada</option><option value="cancelada">Cancelada</option></select></label></div></> : null}
     {mostrarFormulario ? <form className="formulario-tarea" onSubmit={(evento) => void guardarTarea(evento)}><label>Título de la tarea<input required value={titulo} onChange={(evento) => setTitulo(evento.target.value)} /></label><label>Descripción administrativa<input value={descripcion} onChange={(evento) => setDescripcion(evento.target.value)} /></label><label>Vencimiento<input type="datetime-local" value={vencimiento} onChange={(evento) => setVencimiento(evento.target.value)} /></label><label>Prioridad<select value={prioridad} onChange={(evento) => setPrioridad(evento.target.value)}><option value="baja">Baja</option><option value="media">Media</option><option value="alta">Alta</option></select></label><label>Paciente sintético opcional<select value={pacienteId} onChange={(evento) => setPacienteId(evento.target.value)}><option value="">Sin paciente</option>{pacientes.map((paciente) => <option value={paciente.id} key={paciente.id}>{paciente.codigo}</option>)}</select></label><label>Estudio opcional<select value={estudioId} onChange={(evento) => setEstudioId(evento.target.value)}><option value="">Sin estudio</option>{estudios.map((estudio) => <option value={estudio.id} key={estudio.id}>{estudio.codigo_interno}</option>)}</select></label><button className="boton-primario" disabled={guardando} type="submit">Guardar tarea</button></form> : null}
     <section className="panel-tabla"><div className="cabecera-tabla"><div><p className="sobrelinea">Datos persistidos</p><h2>Vista general</h2></div><span>{filas.length} registros</span></div><div className="tabla-desplazable"><table><thead><tr>{datos.columnas.map(([clave, etiqueta]) => <th key={clave}>{etiqueta}</th>)}</tr></thead><tbody>{filas.length === 0 ? <tr><td colSpan={datos.columnas.length}>No hay registros todavía.</td></tr> : filas.map((fila, indice) => <tr key={fila.id || indice}>{datos.columnas.map(([clave, etiqueta]) => <td data-label={etiqueta} key={clave}>{clave === 'acciones' ? <div className="acciones-tabla"><button type="button" onClick={() => void cambiarEstadoTarea(fila.id, 'en_curso')}>Iniciar</button><button type="button" onClick={() => void cambiarEstadoTarea(fila.id, 'completada')}>Completar</button><button type="button" onClick={() => void cambiarEstadoTarea(fila.id, 'cancelada')}>Cancelar</button></div> : fila[clave]}</td>)}</tr>)}</tbody></table></div></section>
   </>
