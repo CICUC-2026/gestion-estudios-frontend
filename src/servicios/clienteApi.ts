@@ -49,3 +49,18 @@ export async function solicitarApi<T>(
   }
   return (await respuesta.json()) as T
 }
+
+export async function descargarApi(
+  ruta: string,
+  opciones: RequestInit,
+  token?: string | null,
+): Promise<{ archivo: Blob; nombre: string; hash: string }> {
+  const encabezados = new Headers(opciones.headers)
+  encabezados.set('Content-Type', 'application/json')
+  if (token) encabezados.set('Authorization', `Bearer ${token}`)
+  const respuesta = await fetch(`${URL_API}${ruta}`, { ...opciones, headers: encabezados })
+  if (!respuesta.ok) throw new ErrorApi(respuesta.status, 'EXPORTACION_FALLIDA', 'No fue posible generar la exportación.')
+  const disposicion = respuesta.headers.get('Content-Disposition') ?? ''
+  const nombre = disposicion.match(/filename="([^"]+)"/)?.[1] ?? 'cicuc-demo.dat'
+  return { archivo: await respuesta.blob(), nombre, hash: respuesta.headers.get('X-Contenido-SHA256') ?? '' }
+}

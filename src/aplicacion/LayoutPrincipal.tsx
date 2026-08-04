@@ -11,6 +11,7 @@ const navegacion = [
   { etiqueta: "Cupos", ruta: "/cupos", icono: "▣" },
   { etiqueta: "Operación", ruta: "/operacion", icono: "✓" },
   { etiqueta: "Reportes", ruta: "/reportes", icono: "▥" },
+  { etiqueta: "Exportar", ruta: "/exportaciones", icono: "⇩" },
 ];
 
 export function LayoutPrincipal() {
